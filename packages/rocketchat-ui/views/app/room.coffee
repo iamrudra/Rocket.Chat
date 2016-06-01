@@ -275,15 +275,23 @@ Template.room.events
 			$('#room-title-field').focus().select()
 		, 10
 
-	"click .flex-tab .user-image > button" : (e, instance) ->
-		RocketChat.TabBar.openFlex()
-		instance.setUserDetail @username
+#	"click .flex-tab .user-image > button" : (e, instance) ->
+#		RocketChat.TabBar.openFlex()
+#		instance.setUserDetail @username
+#
+#	'click .user-card-message': (e, instance) ->
+#		roomData = Session.get('roomData' + this._arguments[1].rid)
+#		if roomData.t in ['c', 'p']
+#			instance.setUserDetail this._arguments[1].u.username
+#		RocketChat.TabBar.setTemplate 'membersList'
 
 	'click .user-card-message': (e, instance) ->
-		roomData = Session.get('roomData' + this._arguments[1].rid)
-		if roomData.t in ['c', 'p']
-			instance.setUserDetail this._arguments[1].u.username
-		RocketChat.TabBar.setTemplate 'membersList'
+		Meteor.call 'createDirectMessage', this._arguments[1].u.username, (err, result) =>
+			if err
+				return handleError(err)
+
+			if result?.rid?
+				FlowRouter.go('direct', { username: this._arguments[1].u.username })
 
 	'scroll .wrapper': _.throttle (e, instance) ->
 		if RoomHistoryManager.isLoading(@_id) is false and (RoomHistoryManager.hasMore(@_id) is true or RoomHistoryManager.hasMoreNext(@_id) is true)

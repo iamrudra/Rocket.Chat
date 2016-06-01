@@ -117,6 +117,14 @@ Template.membersList.events
 	'click .show-more-users': (e, instance) ->
 		instance.usersLimit.set(instance.usersLimit.get() + 100)
 
+	'click .pvt-msg': (e) ->
+		Meteor.call 'createDirectMessage', @username, (error, result) =>
+			if error
+				return handleError(error)
+
+			if result?.rid?
+				FlowRouter.go('direct', { username: @username })
+				
 Template.membersList.onCreated ->
 	@showAllUsers = new ReactiveVar false
 	@usersLimit = new ReactiveVar 100
